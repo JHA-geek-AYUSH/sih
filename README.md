@@ -38,41 +38,80 @@ A comprehensive healthcare management system designed for rural areas, featuring
 
 ## 🚀 Quick Start
 
-### Prerequisites
+### Option 1: Docker (Recommended - Easiest Setup)
+
+**Prerequisites:**
+- Docker Desktop (Windows/Mac) or Docker Engine (Linux)
+- Git
+
+**One-Command Setup:**
+```bash
+# Clone and start everything with Docker
+git clone https://github.com/JHA-geek-AYUSH/sih.git
+cd sih
+
+# For Windows
+start-docker.bat
+
+# For Linux/Mac
+chmod +x start-docker.sh
+./start-docker.sh
+```
+
+**Manual Docker Setup:**
+```bash
+# 1. Clone repository
+git clone https://github.com/JHA-geek-AYUSH/sih.git
+cd sih
+
+# 2. Set up environment
+cd backend
+cp .env.example .env
+# Edit .env with your configuration
+
+# 3. Start all services
+docker-compose -f docker-compose.full.yml --profile dev up --build
+
+# 4. Access the application
+# Frontend: http://localhost:8080
+# Backend API: http://localhost:5000/api
+```
+
+📖 **Detailed Docker Guide:** See [DOCKER_SETUP.md](./DOCKER_SETUP.md)
+
+### Option 2: Manual Setup
+
+**Prerequisites:**
 - Node.js 18+
 - MongoDB 5.0+
 - Redis (optional)
 - Git
 
-### Installation
+**Installation:**
+```bash
+# 1. Clone repository
+git clone https://github.com/JHA-geek-AYUSH/sih.git
+cd sih
 
-1. **Clone the repository**
-   ```bash
-   git clone <your-repo-url>
-   cd pharmalytics-care-main
-   ```
+# 2. Set up environment variables
+# See SETUP.md for detailed configuration
+cp backend/.env.example backend/.env
+cp frontend/.env.example frontend/.env
 
-2. **Set up environment variables**
-   - See [SETUP.md](./SETUP.md) for detailed environment configuration
-   - Create `.env` files in both `backend/` and `frontend/` directories
+# 3. Start backend
+cd backend
+npm install
+npm run dev
 
-3. **Start with Docker (Recommended)**
-   ```bash
-   cd backend
-   docker-compose up -d
-   ```
+# 4. Start frontend (new terminal)
+cd frontend
+npm install
+npm run dev
 
-4. **Start the frontend**
-   ```bash
-   cd frontend
-   npm install
-   npm run dev
-   ```
-
-5. **Access the application**
-   - Frontend: http://localhost:8080
-   - Backend API: http://localhost:5000/api
-   - MongoDB: mongodb://localhost:27017
+# 5. Access the application
+# Frontend: http://localhost:8080
+# Backend API: http://localhost:5000/api
+```
 
 ## 📁 Project Structure
 

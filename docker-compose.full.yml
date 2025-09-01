@@ -1,0 +1,110 @@
+version: '3.8'
+
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:7.0
+    container_name: rhms_mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME:-admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-password123}
+      MONGO_INITDB_DATABASE: ${MONGO_DATABASE:-pharmalytics_care}
+    volumes:
+      - mongodb_data:/data/db
+      - ./backend/src/scripts/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    networks:
+      - rhms_network
+
+  # Redis for caching and sessions
+  redis:
+    image: redis:7.2-alpine
+    container_name: rhms_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - rhms_network
+
+  # Backend API
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: rhms_backend
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      PORT: ${PORT:-5000}
+      MONGODB_URI: ${MONGODB_URI:-mongodb://admin:password123@mongodb:27017/pharmalytics_care?authSource=admin}
+      JWT_SECRET: ${JWT_SECRET:-your_super_secret_jwt_key_here}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379}
+      EMAIL_HOST: ${EMAIL_HOST:-smtp.gmail.com}
+      EMAIL_PORT: ${EMAIL_PORT:-587}
+      EMAIL_USER: ${EMAIL_USER:-your_email@gmail.com}
+      EMAIL_PASS: ${EMAIL_PASS:-your_app_password}
+      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID:-your_twilio_account_sid}
+      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN:-your_twilio_auth_token}
+      TWILIO_PHONE_NUMBER: ${TWILIO_PHONE_NUMBER:-your_twilio_phone_number}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:8080}
+    depends_on:
+      - mongodb
+      - redis
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    networks:
+      - rhms_network
+
+  # Frontend (Development)
+  frontend-dev:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: rhms_frontend_dev
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:5000/api}
+      VITE_APP_NAME: ${VITE_APP_NAME:-Pharmalytics Care}
+      VITE_NODE_ENV: ${VITE_NODE_ENV:-development}
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - rhms_network
+    profiles:
+      - dev
+
+  # Frontend (Production)
+  frontend-prod:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: rhms_frontend_prod
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:5000/api}
+      VITE_APP_NAME: ${VITE_APP_NAME:-Pharmalytics Care}
+      VITE_NODE_ENV: ${VITE_NODE_ENV:-production}
+    networks:
+      - rhms_network
+    profiles:
+      - prod
+
+volumes:
+  mongodb_data:
+  redis_data:
+
+networks:
+  rhms_network:
+    driver: bridge
