@@ -29,8 +29,7 @@
     "winston": "^3.11.0",
     "node-cron": "^3.0.3",
     "joi": "^17.11.0",
-    "@tensorflow/tfjs-node": "^4.15.0",
-    "ml-regression": "^2.0.1"
+    "ml-regression": "^1.0.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.2",
